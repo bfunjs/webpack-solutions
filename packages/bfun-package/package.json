@@ -1,0 +1,26 @@
+{
+  "name": "@bfun/solution-package",
+  "version": "1.0.0",
+  "description": "@bfun/cli solution package",
+  "main": "dist/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bfunjs/bfun-solutions.git"
+  },
+  "author": "suibinc@qq.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bfunjs/bfun-solutions/issues"
+  },
+  "homepage": "https://github.com/bfunjs/bfun-solutions#readme",
+  "dependencies": {
+    "@rollup/plugin-json": "^4.1.0",
+    "fs-extra": "^9.0.1",
+    "rollup": "^2.26.11",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-node-resolve": "^5.2.0"
+  },
+  "peerDependencies": {
+    "@bfun/cli": ">=3.1.0"
+  }
+}

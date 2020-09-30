@@ -1,0 +1,36 @@
+{
+  "name": "@bfun/solution-webpack4-vue3",
+  "version": "1.0.0",
+  "description": "@bfun/cli solution webpack4 & vue3",
+  "main": "dist/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bfunjs/bfun-solutions.git"
+  },
+  "author": "suibinc@qq.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bfunjs/bfun-solutions/issues"
+  },
+  "homepage": "https://github.com/bfunjs/bfun-solutions#readme",
+  "dependencies": {
+    "@bfun/solution-webpack4-standard": "1",
+    "@koa/router": "9",
+    "@vue/compiler-sfc": "latest",
+    "chokidar": "3",
+    "koa": "2",
+    "koa-webpack": "5",
+    "memory-fs": "latest",
+    "vue": "next",
+    "vue-loader": "next",
+    "vue-router": "next",
+    "webpack-chain": "6",
+    "webpack-merge": "5"
+  },
+  "peerDependencies": {
+    "@bfun/cli": ">=3.1.0",
+    "@bfun/solution-webpack4-standard": "1",
+    "webpack-chain": "*",
+    "webpack": "4"
+  }
+}

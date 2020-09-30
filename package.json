@@ -1,0 +1,38 @@
+{
+  "name": "bfun-solutions",
+  "version": "2.0.0",
+  "description": "@bfun/cli solutions",
+  "main": "index.js",
+  "scripts": {
+    "build": "bfun build package",
+    "release:bfun-package": "cd packages/bfun-package && npm publish --access=public",
+    "release:webpack4-standard": "cd packages/webpack4-standard && npm publish --access=public",
+    "release:webpack4-standard-h5": "cd packages/webpack4-standard-h5 && npm publish --access=public",
+    "release:webpack4-vue2": "cd packages/webpack4-vue2 && npm publish --access=public",
+    "release:webpack4-vue3": "cd packages/webpack4-vue3 && npm publish --access=public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bfunjs/bfun-solutions.git"
+  },
+  "keywords": [
+    "bfun",
+    "bfunjs",
+    "solutions"
+  ],
+  "author": "suibinc@qq.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bfunjs/bfun-solutions/issues"
+  },
+  "homepage": "https://github.com/bfunjs/bfun-solutions#readme",
+  "devDependencies": {
+    "@bfun/cli": "latest",
+    "@rollup/plugin-json": "^4.1.0",
+    "execa": "^4.0.3",
+    "fs-extra": "^9.0.1",
+    "rollup": "^2.17.1",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-node-resolve": "^5.2.0"
+  }
+}
