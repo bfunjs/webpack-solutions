@@ -1,4 +1,4 @@
-export { init, createWebpackConfig } from './init';
+export { init, generateWebpackConfig } from './init';
 export { dev } from './dev';
 export { build } from './build';
 

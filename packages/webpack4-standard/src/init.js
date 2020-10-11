@@ -15,11 +15,11 @@ const OptimizeCssAssets = require('optimize-css-assets-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const rules = { assets, babel, fonts, style, less, template, degrade };
 
-export async function createWebpackConfig(options, extra = {}) {
-    const { filters = [], sourceMap = false } = extra;
+export async function generateWebpackConfig(options, extra = {}) {
+    const { filters = [], sourceMap = false, minified = true } = extra;
     const chain = new WebpackChain();
 
-    if (process.env.NODE_ENV === 'production') {
+    if (process.env.NODE_ENV === 'production' && minified) {
         chain.stats('errors-only');
         chain.mode('production');
         chain.optimization.minimize(true)
@@ -52,7 +52,7 @@ export async function init(ctx, next) {
     const { options = {} } = solution || {};
     const { sourceMap, configure } = bConfig;
     const { clean } = options;
-    const chain = await createWebpackConfig(options, { sourceMap });
+    const chain = await generateWebpackConfig(options, { sourceMap });
 
     if (clean !== false) {
         let defaultOptions = Object.assign({

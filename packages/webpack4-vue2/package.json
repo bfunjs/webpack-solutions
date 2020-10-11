@@ -3,6 +3,10 @@
   "version": "1.0.2",
   "description": "@bfun/cli solution webpack4 & vue2",
   "main": "dist/index.js",
+  "buildOptions": {
+    "minified": false,
+    "globals": {}
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/bfunjs/bfun-solutions.git"

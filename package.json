@@ -1,10 +1,13 @@
 {
   "name": "bfun-solutions",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "@bfun/cli solutions",
   "main": "index.js",
   "scripts": {
-    "build": "bfun build package",
+    "build:all": "bfun build package",
+    "build:bfun-package": "bfun build package ./packages/bfun-package",
+    "build:bfun-component": "bfun build package ./packages/bfun-component",
+    "build:bfun-template": "bfun build package ./packages/bfun-template",
     "release:bfun-package": "cd packages/bfun-package && npm publish --access=public",
     "release:webpack4-standard": "cd packages/webpack4-standard && npm publish --access=public",
     "release:webpack4-standard-h5": "cd packages/webpack4-standard-h5 && npm publish --access=public",
@@ -28,6 +31,7 @@
   "homepage": "https://github.com/bfunjs/bfun-solutions#readme",
   "devDependencies": {
     "@bfun/cli": "latest",
+    "@bfun/solution-package": "1",
     "@rollup/plugin-json": "^4.1.0",
     "execa": "^4.0.3",
     "fs-extra": "^9.0.1",

@@ -1,7 +1,7 @@
-import { join, resolve } from 'path';
-import fs from 'fs-extra';
-import { isPackageDir, keyGen, toCamel } from '../../shared';
+import { keyGen, toCamel } from '../../../shared';
 
+const { join, resolve } = require('path');
+const fs = require('fs-extra');
 const rollupCommonjs = require('@rollup/plugin-commonjs');
 const { nodeResolve } = require('@rollup/plugin-node-resolve');
 const rollupJson = require('@rollup/plugin-json');
@@ -9,16 +9,22 @@ const rollupReplace = require('@rollup/plugin-replace');
 const { terser } = require('rollup-plugin-terser');
 const rollupTypescript = require('rollup-plugin-typescript2');
 
-const { logger } = global.common;
-
-function findAllPackages(target) {
-    const { rootDir } = global;
-    const baseDir = join(rootDir, target);
-
-    if (isPackageDir(baseDir)) return [ baseDir ];
-    return fs.readdirSync(baseDir).map(name => join(baseDir, name))
-        .filter(name => isPackageDir(name));
-}
+const dist = [
+    {
+        output: 'dist/index.js',
+        format: 'umd',
+    },
+    {
+        output: 'dist/esm.dev.js',
+        format: 'esm',
+        minified: false,
+    },
+    {
+        output: 'dist/esm.min.js',
+        format: 'esm',
+        minified: true,
+    },
+];
 
 function createReplacePlugin(constants) {
     const replacements = {};
@@ -33,46 +39,48 @@ function createReplacePlugin(constants) {
     return rollupReplace(replacements)
 }
 
-export function createConfig(target, addRollupConfig) {
+export async function createRollupConfig(addRollupConfig) {
     const { rootDir } = global;
-    const pkgJson = require(join(target, 'package.json'));
-    const { name: pkgName, version, buildOptions = {} } = pkgJson;
-    const defaultEntry = fs.existsSync(resolve(target, 'src/index.ts')) ? 'src/index.ts' : 'src/index.js';
-    const hasTSConfig = fs.existsSync(resolve(target, 'tsconfig.json'));
+    const tsconfig = 'tsconfig.json';
+    const pkgJson = require(join(rootDir, 'package.json'));
+    const { name, version, buildOptions = {} } = pkgJson;
+    const defaultEntry = fs.existsSync(resolve(rootDir, 'src/index.ts')) ? 'src/index.ts' : 'src/index.js';
+    const hasTSConfig = fs.existsSync(resolve(rootDir, tsconfig));
+    const isProductionEnv = process.env.NODE_ENV === 'production';
     const {
-        entry = defaultEntry, dist = [ {} ],
+        entry = defaultEntry, globals = {},
         sourcemap = false, externalLiveBindings = false,
-        constant = {}, minified: globalMinified = false,
-        globals = {},
+        constant = {}, minified: globalMinified = isProductionEnv,
     } = buildOptions;
     let hasTSChecked = false;
 
-    fs.removeSync(`${target}/dist`);
+    fs.removeSync(`${rootDir}/dist`);
     return dist.map(options => {
-        const { name = '', output = 'dist/index.js', format = 'cjs', minified = globalMinified } = options;
-        const isNodeBuild = format === 'cjs';
+        const { output, format, minified = globalMinified } = options;
         const shouldEmitDeclarations = pkgJson.types && !hasTSChecked;
         const tsPlugin = rollupTypescript({
-            check: process.env.NODE_ENV === 'production' && !hasTSChecked,
-            tsconfig: resolve(hasTSConfig ? target : rootDir, 'tsconfig.json'),
+            check: isProductionEnv && !hasTSChecked,
+            tsconfig: hasTSConfig ? resolve(rootDir, tsconfig) : resolve(__dirname, '../', tsconfig),
             cacheRoot: resolve(rootDir, 'node_modules/.rts2_cache'),
             tsconfigOverride: {
                 compilerOptions: {
+                    baseUrl: rootDir,
+                    rootDir: rootDir,
                     sourceMap: sourcemap,
                     declaration: shouldEmitDeclarations,
                     declarationMap: shouldEmitDeclarations,
                 },
-                exclude: [ '**/__tests__', 'test-dts' ],
+                include: [ `${rootDir}/src/*` ],
             },
         });
         hasTSChecked = true;
 
-        const external = [ 'path', 'url', 'fs-extra', ...Object.keys(globals) ];
+        const external = [ 'path', 'url', ...Object.keys(globals) ];
         const config = {
-            input: resolve(target, entry),
+            input: resolve(rootDir, entry),
             output: {
-                name: toCamel(name || pkgName),
-                file: resolve(target, output),
+                name: toCamel(name),
+                file: resolve(rootDir, output),
                 format,
                 sourcemap,
                 externalLiveBindings,
@@ -83,7 +91,7 @@ export function createConfig(target, addRollupConfig) {
                 rollupJson({ namedExports: false }),
                 // @bfun/solution-* 不设默认tsconfig.json，强制要求tsconfig.json
                 entry.endsWith('.ts') ? tsPlugin : undefined,
-                createReplacePlugin({ version, 'NODE_JS': isNodeBuild, ...constant }),
+                createReplacePlugin({ version, ...constant }),
                 nodeResolve(),
                 rollupCommonjs({
                     exclude: [ 'node_modules/**', 'bfun_modules/**' ],
@@ -96,34 +104,17 @@ export function createConfig(target, addRollupConfig) {
                     },
                 }) : undefined,
             ].filter(v => v),
-            // treeshake: {
-            //     moduleSideEffects: false,
-            // },
+            treeshake: {
+                moduleSideEffects: false,
+            },
         };
 
         addRollupConfig({
-            target,
+            target: rootDir,
+            apiExtractorConfigPath: resolve(__dirname, '../'),
             pkgJson,
             options,
             config,
         });
     })
-}
-
-export async function init(ctx, next, solutionOptions) {
-    const { args, solution } = ctx;
-    solution.rollup = [];
-
-    await next();
-
-    const target = args[1] || 'packages';
-    let list = findAllPackages(target);
-
-    if (!list.length) {
-        logger.error(`未找到符合条件的目录: ${target}`.red);
-        process.exit(0);
-    }
-
-    const addRollupConfig = config => solution.rollup.push(config);
-    list.map(target => createConfig(target, addRollupConfig));
 }
