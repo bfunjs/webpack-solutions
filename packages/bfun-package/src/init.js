@@ -2,6 +2,7 @@ import { join, resolve } from 'path';
 import fs from 'fs-extra';
 import { isPackageDir, keyGen, toCamel } from '../../shared';
 
+const rollupAlias = require('@rollup/plugin-alias');
 const rollupCommonjs = require('@rollup/plugin-commonjs');
 const { nodeResolve } = require('@rollup/plugin-node-resolve');
 const rollupJson = require('@rollup/plugin-json');
@@ -23,11 +24,10 @@ function findAllPackages(target) {
 function createReplacePlugin(constants) {
     const replacements = {};
     Object.keys(constants).forEach(key => {
-        const finalKey = keyGen(key.toUpperCase());
-        if (finalKey in process.env) {
-            replacements[finalKey] = process.env[finalKey];
+        if (key in process.env) {
+            replacements[key] = process.env[key];
         } else {
-            replacements[finalKey] = constants[key];
+            replacements[key] = constants[key];
         }
     });
     return rollupReplace(replacements)
@@ -40,16 +40,16 @@ export function createConfig(target, addRollupConfig) {
     const defaultEntry = fs.existsSync(resolve(target, 'src/index.ts')) ? 'src/index.ts' : 'src/index.js';
     const hasTSConfig = fs.existsSync(resolve(target, 'tsconfig.json'));
     const {
-        entry = defaultEntry, dist = [ {} ],
+        entry = defaultEntry, dist = [ {} ], alias,
         sourcemap = false, externalLiveBindings = false,
-        constant = {}, minified: globalMinified = false,
+        env: globalEnv = {}, minified: globalMinified = false,
         globals = {},
     } = buildOptions;
     let hasTSChecked = false;
 
     fs.removeSync(`${target}/dist`);
     return dist.map(options => {
-        const { name = '', output = 'dist/index.js', format = 'cjs', minified = globalMinified } = options;
+        const { name = '', output = 'dist/index.js', format = 'cjs', minified = globalMinified, env = {} } = options;
         const isNodeBuild = format === 'cjs';
         const shouldEmitDeclarations = pkgJson.types && !hasTSChecked;
         const tsPlugin = rollupTypescript({
@@ -83,7 +83,12 @@ export function createConfig(target, addRollupConfig) {
                 rollupJson({ namedExports: false }),
                 // @bfun/solution-* 不设默认tsconfig.json，强制要求tsconfig.json
                 entry.endsWith('.ts') ? tsPlugin : undefined,
-                createReplacePlugin({ version, 'NODE_JS': isNodeBuild, ...constant }),
+                createReplacePlugin({
+                    [keyGen('NAME')]: pkgName,
+                    [keyGen('VERSION')]: version,
+                    [keyGen('NODE_JS')]: isNodeBuild,
+                    ...(Object.assign(globalEnv, env)),
+                }),
                 nodeResolve(),
                 rollupCommonjs({
                     exclude: [ 'node_modules/**', 'bfun_modules/**' ],
@@ -95,6 +100,7 @@ export function createConfig(target, addRollupConfig) {
                         pure_getters: true,
                     },
                 }) : undefined,
+                alias ? rollupAlias({ entries: alias }) : undefined,
             ].filter(v => v),
             // treeshake: {
             //     moduleSideEffects: false,
@@ -115,6 +121,7 @@ export async function init(ctx, next, solutionOptions) {
     solution.rollup = [];
 
     await next();
+    if (solution.skip.indexOf('__NAME__:init:next') >= 0) return;
 
     const target = args[1] || 'packages';
     let list = findAllPackages(target);

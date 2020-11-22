@@ -49,10 +49,13 @@ async function setupDevServer({ host, port, wConfig, devServer }) {
     server.listen(port, '0.0.0.0');
 }
 
-export async function dev(ctx, next, solutionOptions) {
+export async function dev(ctx, next) {
     const { host, port, solution, filepath } = ctx;
     const { webpack: wConfig, options } = solution || {};
     const { devServer = {} } = options;
+
+    await next();
+    if (solution.skip.indexOf('__NAME__:dev:next') >= 0) return;
 
     await setupDevServer({ host, port, wConfig, devServer });
 

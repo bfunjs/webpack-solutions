@@ -1,6 +1,6 @@
 {
   "name": "@bfun/solution-webpack4-standard",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "description": "@bfun/cli solution webpack4 standard",
   "main": "dist/index.js",
   "repository": {

@@ -6,13 +6,14 @@ import less from './rules/less';
 import template from './rules/template';
 import degrade from './rules/degrade';
 
-const { autoDetectJsEntry } = global.common;
 const path = require('path');
 const WebpackChain = require('webpack-chain');
 const { ProgressPlugin } = require('webpack');
 const TerserWebpackPlugin = require('terser-webpack-plugin');
 const OptimizeCssAssets = require('optimize-css-assets-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const { autoDetectJsEntry } = global.common;
+const { name } = require('../package.json');
 const rules = { assets, babel, fonts, style, less, template, degrade };
 
 export async function generateWebpackConfig(options, extra = {}) {
@@ -69,6 +70,7 @@ export async function init(ctx, next) {
     solution.webpack.push(chain);
 
     await next();
+    if (solution.skip.indexOf('__NAME__:init:next') >= 0) return;
 
     const list = [];
     for (let i = 0, l = solution.webpack.length; i < l; i++) {

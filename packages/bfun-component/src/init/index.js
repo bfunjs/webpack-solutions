@@ -25,7 +25,9 @@ export async function init(ctx, next) {
     solution.type = type;
     solution.rollup = [];
 
+    solution.skip.push('@bfun/solution-webpack4-standard:init:next');
     await next();
+    if (solution.skip.indexOf('__NAME__:init:next') >= 0) return;
 
     if (type === 'function') {
         solution.skip.push('@bfun/solution-webpack4-standard:*');

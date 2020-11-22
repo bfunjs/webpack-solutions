@@ -1,8 +1,11 @@
 {
   "name": "@bfun/solution-webpack4-vue3",
-  "version": "1.0.0",
+  "version": "1.0.1-beta.1",
   "description": "@bfun/cli solution webpack4 & vue3",
   "main": "dist/index.js",
+  "buildOptions": {
+    "minified": false
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/bfunjs/bfun-solutions.git"

@@ -1,6 +1,6 @@
 import { toCamel } from '../../../shared';
 import { generateWebpackConfig } from '../../../webpack4-standard/src';
-import { initCommonConfig } from '../../../webpack4-vue2/src/init/vue';
+import { initCommonConfig } from '../../../webpack4-vue3/src/init/vue';
 
 const { resolve, join } = require('path');
 const { ProgressPlugin } = require('webpack');
@@ -10,17 +10,17 @@ let hasCleaned = false;
 
 export async function createWebpackConfig(ctx) {
     const { rootDir } = global;
-    const { bConfig, solution } = ctx;
+    const { solution } = ctx;
     const { options = {} } = solution || {};
-    const { sourceMap } = bConfig;
-    const { clean } = options;
+    const { clean } = options || {};
     const pkgJson = require(join(rootDir, 'package.json'));
     const { name, buildOptions = {} } = pkgJson;
-    const { minified = true } = buildOptions;
+    const { minified = true, sourceMap } = buildOptions;
     const extra = { sourceMap, minified, filters: [ 'template' ] };
     const chain = await generateWebpackConfig(options, extra);
+    chain.externals({ 'vue': 'Vue' });
 
-    if (hasCleaned !== false) {
+    if (hasCleaned === false) {
         let defaultOptions = Object.assign({
             verbose: false,
             dry: false,
@@ -41,7 +41,9 @@ export async function createWebpackConfig(ctx) {
         const wChain = solution.webpack[i];
         const config = await wChain.toConfig();
         config.entry = {
-            index: resolve(rootDir, 'src/index.js'),
+            index: process.env.NODE_ENV === 'production'
+                ? resolve(rootDir, 'src/index.js')
+                : resolve(rootDir, 'start.js'),
         };
         const { output = {} } = config;
         output.library = toCamel(name);
