@@ -1,8 +1,8 @@
 import { initCommonConfig } from './vue';
 
-const VueSSRClientPlugin = require('vue-server-renderer/client-plugin');
-const VueSSRServerPlugin = require('vue-server-renderer/server-plugin');
 const nodeExternals = require('webpack-node-externals');
+// const VueSSRClientPlugin = require('vue-server-renderer/client-plugin');
+// const VueSSRServerPlugin = require('vue-server-renderer/server-plugin');
 
 const { autoDetectJsEntry } = global.common;
 
@@ -13,8 +13,7 @@ export function initClientConfig(chain, options) {
     Object.keys(clientEntry).map(key => chain.entry(key).add(clientEntry[key]));
 
     initCommonConfig(chain, options);
-    chain.plugin('ssr-client').use(VueSSRClientPlugin, [ { filename } ])
-    // chain.plugins.delete('clean');
+    // chain.plugin('ssr-client').use(VueSSRClientPlugin, [ { filename } ])
 }
 
 export function initServerConfig(chain, options) {
@@ -25,11 +24,11 @@ export function initServerConfig(chain, options) {
 
     initCommonConfig(chain, options);
 
-    chain.plugin('ssr-server').use(VueSSRServerPlugin, [ { filename } ])
+    // chain.plugin('ssr-server').use(VueSSRServerPlugin, [ { filename } ])
     chain.target('node');
     chain.output.filename('server-bundle.js');
     chain.output.libraryTarget('commonjs2');
-    chain.externals(nodeExternals({ whitelist: /\.css$/ }));
+    chain.externals(nodeExternals({ whitelist: /\.(css|vue)$/ }));
 
     chain.plugins.delete('template');
     chain.plugins.delete('clean');

@@ -1,10 +1,10 @@
 const name = 'fonts';
 
-export default async function (chain, { [name]: options }) {
+export default async function (chain, { [name]: options, hash }) {
     let defaultOptions = {
         fallback: 'file-loader',
         limit: 8192,
-        name: 'fonts/[name].[ext]',
+        name: hash ? `fonts/[name].[hash:${hash}].[ext]` : 'fonts/[name].[ext]',
     };
     if (typeof options === 'object') {
         defaultOptions = Object.assign(defaultOptions, options);

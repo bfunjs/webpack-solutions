@@ -80,7 +80,7 @@ async function setupSSRServer({ host, port, wConfig }) {
         },
     });
 
-    route.get('/', async (ctx, next) => {
+    route.get('/(.*)', async (ctx, next) => {
         const { req } = ctx;
         const { fileSystem } = clientMiddleware.devMiddleware;
         let filepath = ctx.path || '';

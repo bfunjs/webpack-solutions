@@ -3,3 +3,4 @@ export const required = [ 'vue' ];
 export const version = '__VERSION__';
 
 export { init } from './init';
+export { dev } from './dev';

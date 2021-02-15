@@ -5,7 +5,7 @@ const koaWebpack = require('koa-webpack');
 const chokidar = require('chokidar');
 const webpack = require('webpack');
 const MemoryFS = require('memory-fs');
-const VueServerRenderer = require('vue-server-renderer');
+const VueServerRenderer = require('@vue/server-renderer');
 
 const memFs = new MemoryFS();
 const CHARSET = 'utf-8';

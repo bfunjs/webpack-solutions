@@ -3,7 +3,6 @@ import { generateWebpackConfig } from '../../../webpack4-standard/src';
 import { initCommonConfig } from '../../../webpack4-vue3/src/init/vue';
 
 const { resolve, join } = require('path');
-const { ProgressPlugin } = require('webpack');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 let hasCleaned = false;

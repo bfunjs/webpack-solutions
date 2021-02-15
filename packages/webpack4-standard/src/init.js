@@ -5,28 +5,36 @@ import style from './rules/style';
 import less from './rules/less';
 import template from './rules/template';
 import degrade from './rules/degrade';
+import eslint from './rules/eslint';
+import typescript from './rules/typescript';
 
-const path = require('path');
+const { join } = require('path');
 const WebpackChain = require('webpack-chain');
 const { ProgressPlugin } = require('webpack');
 const TerserWebpackPlugin = require('terser-webpack-plugin');
 const OptimizeCssAssets = require('optimize-css-assets-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const { autoDetectJsEntry } = global.common;
-const { name } = require('../package.json');
-const rules = { assets, babel, fonts, style, less, template, degrade };
+const rules = { assets, babel, fonts, style, less, template, degrade, eslint, typescript };
 
 export async function generateWebpackConfig(options, extra = {}) {
-    const { filters = [], sourceMap = false, minified = true } = extra;
+    const { minified: min = true, hash = true, publicPath, distSubDir } = options;
+    const { filters = [], sourceMap = false, minified = min } = extra;
     const chain = new WebpackChain();
 
-    if (process.env.NODE_ENV === 'production' && minified) {
+    // 预处理相关参数
+    if (hash) options.hash = [ 'number', 'string' ].includes(typeof hash) ? hash : 8;
+
+    if (process.env.NODE_ENV === 'production') {
         chain.stats('errors-only');
         chain.mode('production');
-        chain.optimization.minimize(true)
+
         if (sourceMap) chain.devtool('source-map');
-        chain.optimization.minimizer('TerserWebpackPlugin').use(TerserWebpackPlugin, [ { sourceMap } ]);
-        chain.optimization.minimizer('OptimizeCssAssets').use(OptimizeCssAssets);
+        chain.optimization.minimize(minified);
+        if (minified) {
+            chain.optimization.minimizer('TerserWebpackPlugin').use(TerserWebpackPlugin, [ { sourceMap } ]);
+            chain.optimization.minimizer('OptimizeCssAssets').use(OptimizeCssAssets);
+        }
     } else {
         chain.stats('minimal');
         chain.mode('development');
@@ -42,8 +50,10 @@ export async function generateWebpackConfig(options, extra = {}) {
         await rules[key](chain, options);
     }
 
-    chain.output.path(path.join(process.cwd(), 'dist')).filename('[name].js');
-    chain.output.publicPath('/');
+    chain.output.path(join.apply(this, [ process.cwd(), 'dist', distSubDir ].filter(v => v)))
+        .filename(options.hash ? `[name].[hash:${options.hash}].js` : '[name].js')
+        .chunkFilename(options.hash ? `[name].[hash:${options.hash}].js` : '[name].js')
+        .publicPath(publicPath || '/');
     chain.plugin('progress').use(ProgressPlugin);
     return chain;
 }
@@ -52,7 +62,7 @@ export async function init(ctx, next) {
     const { bConfig, solution } = ctx;
     const { options = {} } = solution || {};
     const { sourceMap, configure } = bConfig;
-    const { clean } = options;
+    const { clean, alias } = options;
     const chain = await generateWebpackConfig(options, { sourceMap });
 
     if (clean !== false) {
@@ -75,6 +85,7 @@ export async function init(ctx, next) {
     const list = [];
     for (let i = 0, l = solution.webpack.length; i < l; i++) {
         const wChain = solution.webpack[i];
+        if (typeof alias === 'object') Object.keys(alias).forEach(key => wChain.resolve.alias.set(key, alias[key]));
         let status = true;
         if (typeof configure === 'function') status = await configure(wChain, i);
         if (status === false) continue;

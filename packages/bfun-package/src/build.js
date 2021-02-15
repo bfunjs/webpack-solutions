@@ -1,17 +1,18 @@
 import { resolve } from 'path';
 
 const fs = require('fs-extra');
-const { rollup } = require('rollup');
+const { rollup: rollupBuild, watch: watchBuild } = require('rollup');
 const chalk = require('chalk');
 
 export async function build(ctx) {
-    const { solution } = ctx;
+    const { solution, args } = ctx;
+    const { watch } = args;
     const apiAnalysisMap = {};
 
     for (const item of solution.rollup) {
         const start = Date.now();
         const { target, apiExtractorConfigPath, config, pkgJson } = item;
-        const bundle = await rollup(config);
+        const bundle = watch ? await watchBuild(config) : await rollupBuild(config);
         await bundle.generate(config.output);
         await bundle.write(config.output);
 

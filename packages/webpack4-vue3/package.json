@@ -1,10 +1,10 @@
 {
   "name": "@bfun/solution-webpack4-vue3",
-  "version": "1.0.1-beta.1",
+  "version": "1.0.2",
   "description": "@bfun/cli solution webpack4 & vue3",
   "main": "dist/index.js",
   "buildOptions": {
-    "minified": false
+    "minified": true
   },
   "repository": {
     "type": "git",
@@ -20,6 +20,7 @@
     "@bfun/solution-webpack4-standard": "1",
     "@koa/router": "9",
     "@vue/compiler-sfc": "latest",
+    "@vue/server-renderer": "^3.0.4",
     "chokidar": "3",
     "koa": "2",
     "koa-webpack": "5",

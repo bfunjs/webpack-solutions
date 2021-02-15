@@ -2,8 +2,8 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 const name = 'style'
 
-export default async function (chain, { [name]: options }) {
-    let defaultOptions = { filename: 'css/[name].css' };
+export default async function (chain, { [name]: options, hash }) {
+    let defaultOptions = { filename: hash ? `[name].[hash:${hash}].css` : 'css/[name].css' };
     if (typeof options === 'object') {
         defaultOptions = Object.assign(defaultOptions, options);
     }
