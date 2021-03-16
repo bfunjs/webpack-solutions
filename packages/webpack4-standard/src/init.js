@@ -11,6 +11,7 @@ import typescript from './rules/typescript';
 const { join } = require('path');
 const WebpackChain = require('webpack-chain');
 const { ProgressPlugin } = require('webpack');
+const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 const TerserWebpackPlugin = require('terser-webpack-plugin');
 const OptimizeCssAssets = require('optimize-css-assets-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
@@ -51,8 +52,8 @@ export async function generateWebpackConfig(options, extra = {}) {
     }
 
     chain.output.path(join.apply(this, [ process.cwd(), 'dist', distSubDir ].filter(v => v)))
-        .filename(options.hash ? `[name].[hash:${options.hash}].js` : '[name].js')
-        .chunkFilename(options.hash ? `[name].[hash:${options.hash}].js` : '[name].js')
+        .filename(options.hash ? `[name].[hash:${ options.hash }].js` : '[name].js')
+        .chunkFilename(options.hash ? `[name].[hash:${ options.hash }].js` : '[name].js')
         .publicPath(publicPath || '/');
     chain.plugin('progress').use(ProgressPlugin);
     return chain;
@@ -62,7 +63,7 @@ export async function init(ctx, next) {
     const { bConfig, solution } = ctx;
     const { options = {} } = solution || {};
     const { sourceMap, configure } = bConfig;
-    const { clean, alias } = options;
+    const { clean, alias, analyze } = options;
     const chain = await generateWebpackConfig(options, { sourceMap });
 
     if (clean !== false) {
@@ -71,6 +72,9 @@ export async function init(ctx, next) {
             dry: false,
         }, typeof clean === 'object' ? clean : {});
         chain.plugin('clean').use(CleanWebpackPlugin, [ defaultOptions ]);
+    }
+    if (analyze) {
+        chain.plugin('analyzer').use(BundleAnalyzerPlugin, []);
     }
     // 我们希望当configure是一个对象时只影响第一个webpack配置，防止后面的配置受到污染
     // 如果希望影响每一个webpack配置，可以将configure设置为函数

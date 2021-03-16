@@ -22,7 +22,6 @@ export function initCommonConfig(chain, options) {
     if (less) defaultOptions.loaders.less = [ 'vue-style-loader', 'less-loader' ];
 
     chain.resolve.extensions.add('.vue');
-    chain.output.publicPath('/');
 
     const rule = chain.module.rule(name).test(/\.vue$/);
     rule.use(name).loader('vue-loader').options(defaultOptions);

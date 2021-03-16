@@ -1,6 +1,6 @@
 {
   "name": "bfun-solutions",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "description": "@bfun/cli solutions",
   "main": "index.js",
   "scripts": {

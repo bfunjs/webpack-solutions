@@ -1,6 +1,6 @@
 {
   "name": "@bfun/solution-webpack4-vue2",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "@bfun/cli solution webpack4 & vue2",
   "main": "dist/index.js",
   "buildOptions": {
