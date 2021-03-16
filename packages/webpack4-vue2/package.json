@@ -1,6 +1,6 @@
 {
   "name": "@bfun/solution-webpack4-vue2",
-  "version": "1.0.4",
+  "version": "4.0.1",
   "description": "@bfun/cli solution webpack4 & vue2",
   "main": "dist/index.js",
   "buildOptions": {
@@ -32,7 +32,7 @@
     "webpack-merge": "5"
   },
   "peerDependencies": {
-    "@bfun/cli": ">=3.1.0",
+    "@bfun/cli": ">=4.0.1",
     "@bfun/solution-webpack4-standard": "1",
     "webpack-chain": "*",
     "webpack": "4"

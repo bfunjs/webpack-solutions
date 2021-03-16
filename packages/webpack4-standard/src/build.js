@@ -1,7 +1,6 @@
+const { logger } = require('@bfun/cli');
 const chalk = require('chalk');
 const webpackBuilder = require('webpack');
-
-const { logger } = global.common;
 
 function buildCallback(err, stats) {
     if (err) {
@@ -13,7 +12,7 @@ function buildCallback(err, stats) {
         stat.compilation.children = stat.compilation.children.filter(child => !child.name);
     });
 
-    logger.log(stats.toString({
+    logger.info(stats.toString({
         colors: true,
         hash: false,
         modules: false,
@@ -33,9 +32,7 @@ export async function build(ctx, next) {
             buildCallback(err, stats);
             if (stats.hasErrors()) process.exit(1);
 
-            console.log();
-            console.log(chalk.bold(chalk.green('build completed successfully!')));
-
+            logger.line().green('build completed successfully!'.bold);
             resolve();
         });
     });

@@ -1,3 +1,4 @@
+const { logger } = require('@bfun/cli');
 const webpack = require('webpack');
 const WebpackDevServer = require('webpack-dev-server');
 const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin');
@@ -24,12 +25,12 @@ async function setupDevServer({ host, port, wConfig, devServer }) {
     let hasCompile = false;
     compiler.plugin('done', stats => {
         if (stats.hasErrors()) {
-            console.error(stats.toString({ colors: true }));
-            console.info('\n----------- 构建失败 ----------'.rainbow);
+            logger.error(stats.toString({ colors: true }));
+            logger.info('\n----------- 构建失败 ----------'.rainbow);
         } else if (!hasCompile) {
             hasCompile = true;
         } else {
-            console.info('\n----------- 构建完成 ----------'.rainbow);
+            logger.info('\n----------- 构建完成 ----------'.rainbow);
         }
     });
 

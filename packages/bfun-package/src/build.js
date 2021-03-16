@@ -1,8 +1,11 @@
 import { resolve } from 'path';
+import { init } from './init';
 
+const { logger } = require('@bfun/cli');
 const fs = require('fs-extra');
 const { rollup: rollupBuild, watch: watchBuild } = require('rollup');
-const chalk = require('chalk');
+
+export const preBuild = init;
 
 export async function build(ctx) {
     const { solution, args } = ctx;
@@ -18,7 +21,7 @@ export async function build(ctx) {
 
         if (pkgJson.types && !apiAnalysisMap[target]) {
             apiAnalysisMap[target] = true;
-            console.log();
+            logger.line();
 
             const { Extractor, ExtractorConfig } = require('@microsoft/api-extractor');
             const extractorConfigPath = resolve(apiExtractorConfigPath || target, 'api-extractor.json');
@@ -42,11 +45,11 @@ export async function build(ctx) {
                     );
                     await fs.writeFile(dtsPath, existing + '\n' + toAdd.join('\n'))
                 }
-                console.log(chalk.bold(chalk.green('API Extractor completed successfully.')))
+                logger.green('API Extractor completed successfully.'.bold);
             } else {
-                console.error(
-                    `API Extractor completed with ${extractorResult.errorCount} errors` +
-                    ` and ${extractorResult.warningCount} warnings`,
+                logger.error(
+                    `API Extractor completed with ${extractorResult.errorCount} errors`,
+                    `and ${extractorResult.warningCount} warnings`,
                 );
                 process.exitCode = 1
             }
@@ -58,11 +61,10 @@ export async function build(ctx) {
             }
         }
 
-        console.log();
-        console.log(chalk.bold(chalk.cyan(`${config.input} -> ${config.output.file}`)));
-        console.log(chalk.bold(chalk.green(`created ${config.output.file} in ${Date.now() - start}ms`)));
+        logger.line()
+            .green(`${config.input} -> ${config.output.file}`.cyan.bold)
+            .green(`created ${config.output.file} in ${Date.now() - start}ms`.bold);
     }
 
-    console.log();
-    console.log(chalk.bold(chalk.green('build completed successfully!')));
+    logger.line().green('build completed successfully!'.bold);
 }

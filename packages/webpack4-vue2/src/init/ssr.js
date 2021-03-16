@@ -1,10 +1,9 @@
 import { initCommonConfig } from './vue';
 
+const { autoDetectJsEntry } = require('@bfun/cli');
 const VueSSRClientPlugin = require('vue-server-renderer/client-plugin');
 const VueSSRServerPlugin = require('vue-server-renderer/server-plugin');
 const nodeExternals = require('webpack-node-externals');
-
-const { autoDetectJsEntry } = global.common;
 
 export function initClientConfig(chain, options) {
     const { client = {} } = options;

@@ -8,6 +8,7 @@ import degrade from './rules/degrade';
 import eslint from './rules/eslint';
 import typescript from './rules/typescript';
 
+const { autoDetectJsEntry, logger } = require('@bfun/cli');
 const { join } = require('path');
 const WebpackChain = require('webpack-chain');
 const { ProgressPlugin } = require('webpack');
@@ -15,7 +16,6 @@ const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 const TerserWebpackPlugin = require('terser-webpack-plugin');
 const OptimizeCssAssets = require('optimize-css-assets-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-const { autoDetectJsEntry } = global.common;
 const rules = { assets, babel, fonts, style, less, template, degrade, eslint, typescript };
 
 export async function generateWebpackConfig(options, extra = {}) {
@@ -103,6 +103,6 @@ export async function init(ctx, next) {
         }
         list.push(config);
     }
-    if (list.length < 1) console.warn('webpack config not found');
+    if (list.length < 1) logger.warn('webpack config not found'.bold);
     solution.webpack = list;
 }
